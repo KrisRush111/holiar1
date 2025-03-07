@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1, minimum-scale=1">
+    <title>Задания - Holiarus</title>
+    <style>
+       body {
+    margin: 0;
+    padding: 0;
+    min-height: calc(100vh + 55cm); /* Увеличиваем минимальную высоту на 5 см */
+    font-family: 'Roboto', sans-serif;
+    background-color: #111;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow-y: auto; /* Разрешаем вертикальную прокрутку */
+    overflow-x: hidden; 
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+h2 {
+            margin-top: 20px;
+            color: #ff9800;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.7);
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .task {
+            background-color: #222;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 10px;
+            width: 90%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .task img {
+            width: 40px;
+            height: 40px;
+            margin-right: 15px;
+        }
+
+        .task p {
+            flex-grow: 1;
+        }
+
+        .task button {
+            background-color: #ff9800;
+            border: none;
+            padding: 10px 20px;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .task button:hover {
+            background-color: #e68900;
+            transform: scale(1.05);
+        }
+
+        .task button:active {
+            transform: scale(0.95);
+        }
+
+.footer {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: rgba(62, 58, 58, 0.5);
+            padding: 10px 0;
+            position: fixed;
+            bottom: 10px;
+            width: 95%;
+            border-radius: 15px;
+            margin: 0 auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .footer-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .footer-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .footer-item img {
+            width: 28px;
+            height: 28px;
+            margin-bottom: 5px;
+        }
+
+        .footer-item span {
+            font-size: 12px;
+        }
+        #copyNotification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 18px;
+            z-index: 1000;
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+
+
+        .claimRewardButton {
+        background-color: gray;
+        border: none;
+        padding: 10px 20px;
+        color: white;
+        cursor: not-allowed;
+        border-radius: 5px;
+        transition: background 0.3s, transform 0.3s;
+    }
+
+    .claimRewardButton.active {
+        background-color: #ff9800;
+        cursor: pointer;
+        animation: bounce 1s infinite;
+    }
+
+    .claimRewardButton.completed {
+        background-color: green;
+        cursor: default;
+        animation: none;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .task {
+        display: flex;
+        align-items: center;
+        background-color: #222;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .task img {
+        width: 50px;
+        height: 50px;
+        margin-right: 15px;
+        border-radius: 5px;
+    }
+
+    .task p {
+        flex: 1;
+        color: white;
+        font-size: 16px;
+    }
+    </style>
+</head>
+<body>
+
+    <h2>Играй вместе с друзьями!</h2>
+
+    <div id="copyNotification">Ссылка скопирована!</div>
+
+    <div class="task">
+        <img src="telegram.webp" alt="Telegram">
+        <p>Присоединяйся к нашему Telegram каналу и получи +5 ключей</p>
+        <button id="telegramButton" onclick="openTelegram()">Подписаться</button>
+    </div>
+    
+    <div class="task">
+        <img src="friend.png" alt="Invite Friends">
+        <p>Пригласи друга и получи 500 кристаллов!</p>
+        <button onclick="copyInviteLink(false)">Пригласить</button>
+    </div>
+    
+    <div class="task">
+        <img src="friend.png" alt="Premium Invite">
+        <p>Друг с Telegram Premium? Получи 1500 кристаллов!</p>
+        <button onclick="copyInviteLink(true)">Пригласить</button>
+    </div>
+
+    <h2>Заработай больше кристаллов</h2>
+
+    <div class="task">
+        <img src="game2.jpg" alt="Game 2">
+        <p>Набери 1000 очков в игре 2 и получи 300 кристаллов!</p>
+        <button class="claimRewardButton" id="task1" disabled>Забрать</button>
+    </div>
+
+    <div class="task">
+        <img src="game2.jpg" alt="100 Crystals">
+        <p>Набери 100 кристаллов в игре 2 и получи 1000 кристаллов!</p>
+        <button class="claimRewardButton" id="task8" disabled>Забрать</button>
+    </div>
+    
+    <div class="task">
+        <img src="game2.jpg" alt="Crystals">
+        <p>Собери 50 кристаллов в игре 2 и получи 200 кристаллов!</p>
+        <button class="claimRewardButton" id="task2" disabled>Забрать</button>
+    </div>
+
+    <div class="task">
+        <img src="game2.jpg" alt="High Score">
+        <p>Набери 5000 очков в игре 2 и получи 10 ключей и 300 кристаллов!</p>
+        <button class="claimRewardButton" id="task3" disabled>Забрать</button>
+    </div>
+
+    <div class="task">
+        <img src="1p.png" alt="Small Gift">
+        <p>Купи маленький подарок и получи 500 кристаллов!</p>
+        <button class="claimRewardButton" id="task4" disabled>Забрать</button>
+    </div>
+
+    <div class="task">
+        <img src="green.jpg" alt="Green Square Skin">
+        <p>Приобрети скин: Зеленый квадрат и получи 5 ключей!</p>
+        <button class="claimRewardButton" id="task5" disabled>Забрать</button>
+    </div>
+
+    <div class="task">
+        <img src="15.png" alt="5 Skins">
+        <p>Купи 5 любых скинов и получи 15 ключей и 1200 кристаллов!</p>
+        <button class="claimRewardButton" id="task7" disabled>Забрать</button>
+    </div>
+    <div class="task">
+        <img src="1111.jpg" alt="Game 1">
+        <p>Набери 15 кристаллов в игре 1 и получи 500 кристаллов!</p>
+        <button class="claimRewardButton" id="task9" disabled>Забрать</button>
+    </div>
+    <div class="task">
+        <img src="1111.jpg" alt="Game 1">
+        <p>Набери 20 кристаллов в игре 1 и получи 300 кристаллов!</p>
+        <button class="claimRewardButton" id="task10" disabled>Забрать</button>
+    </div>
+
+    <div class="task">
+        <img src="1111.jpg" alt="Game 1">
+        <p>Набери 50 кристаллов в игре 1 и получи 800 кристаллов!</p>
+        <button class="claimRewardButton" id="task11" disabled>Забрать</button>
+    </div>
+
+    <div class="task">
+        <img src="1111.jpg" alt="Game 1">
+        <p>Набери 100 кристаллов в игре 1 и получи 1700 кристаллов!</p>
+        <button class="claimRewardButton" id="task12" disabled>Забрать</button>
+    </div>
+
+    <div class="task">
+        <img src="15.png" alt="Skins">
+        <p>Купи 2 скина и получи 3000 кристаллов и 5 ключей!</p>
+        <button class="claimRewardButton" id="task13" disabled>Забрать</button>
+    </div>
+
+    <div class="task">
+        <img src="key.png" alt="10 Keys">
+        <p>Набери 10 ключей и получи 1000 кристаллов!</p>
+        <button class="claimRewardButton" id="task6" disabled>Забрать</button>
+    </div>
+
+
+    <div class="task">
+        <img src="game2.jpg" alt="Crystals">
+        <p>Собери 80 кристаллов в игре 2 и получи 500 кристаллов!</p>
+        <button class="claimRewardButton" id="task15" disabled>Забрать</button>
+    </div>
+
+
+    <div class="task">
+        <img src="1111.jpg" alt="Game 1">
+        <p>Набери 1000 кристаллов в игре 1 и получи 10.000 кристаллов!!!!!</p>
+        <button class="claimRewardButton" id="task14" disabled>Забрать</button>
+    </div>
+
+    <div class="task">
+        <img src="15.png" alt="Game 1">
+        <p>Купи 10 любых скинов и получи 5 ключей и 5200 кристаллов!</p>
+        <button class="claimRewardButton" id="task16" disabled>Забрать</button>
+    </div>
+
+
+
+    <div class="footer">
+        <div class="footer-item" onclick="goToMenu()">
+            <img src="m.png" alt="Exchange">
+            <span>Menu</span>
+        </div>
+        <div class="footer-item" onclick="goToShop()">
+            <img src="t.png" alt="Mine">
+            <span>Shop</span>
+        </div>
+        <div class="footer-item" onclick="goToFriends()">
+            <img src="f.png" alt="Friends">
+            <span>Friends</span>
+        </div>
+        <div class="footer-item" onclick="goToSkins()">
+            <img src="cl.png" alt="Skins"> <!-- Добавьте сюда нужный значок для "Skins" -->
+            <span>Skins</span>
+        </div>
+    </div>
+
+
+    <script>
+
+
+        // Обновление счётчика кристаллов на странице
+window.addEventListener('DOMContentLoaded', function() {
+    let totalCrystals = localStorage.getItem('totalCrystals') || 0;
+    document.getElementById('totalCrystals').textContent = totalCrystals;
+});
+
+        function copyInviteLink(friendPremium = false) {
+    const inviteId = Math.random().toString(36).substring(2, 15);  // Уникальный ID
+    const gameLink = `https://t.me/holiarus_bot?inviteId=${inviteId}`;
+    
+    navigator.clipboard.writeText(`Присоединяйся к игре и получи бонусы! ${gameLink}`)
+        .then(() => {
+            showCopyNotification();
+            trackInvite(inviteId, friendPremium);
+        })
+        .catch(err => {
+            console.error("Ошибка копирования ссылки: ", err);
+        });
+}
+
+// Функция для отслеживания приглашений
+function trackInvite(inviteId, friendPremium) {
+    const inviteType = friendPremium ? "premium" : "regular";
+    localStorage.setItem(`invite_${inviteId}`, inviteType);  // Сохраняем приглашение в LocalStorage
+}
+
+      if (performance.navigation.type === 1) {
+            window.location.href = 'index.html';
+        }
+        function copyInviteLink(friendPremium = false) {
+    const gameLink = "https://t.me/holiarus_bot";
+    
+    navigator.clipboard.writeText(`Присоединяйся к игре и получи бонусы! ${gameLink}`)
+        .then(() => {
+            showCopyNotification();
+            trackInvite(friendPremium);
+        })
+        .catch(err => {
+            console.error("Ошибка копирования ссылки: ", err);
+        });
+}
+
+function showCopyNotification() {
+    const notification = document.getElementById('copyNotification');
+    notification.style.display = 'block';
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, 2000); // Скрыть через 2 секунды
+}
+
+
+// Функция для отслеживания приглашений
+function trackInvite(friendPremium) {
+    const inviteType = friendPremium ? "premium" : "regular";
+    let inviteCount = localStorage.getItem(`invite_${inviteType}`) || 0;
+    inviteCount = parseInt(inviteCount) + 1;
+    localStorage.setItem(`invite_${inviteType}`, inviteCount);
+}
+
+        // Проверяем состояние задач при загрузке страницы
+        window.addEventListener('DOMContentLoaded', function() {
+            updateTaskStates();
+            updateCrystalDisplay();
+            checkSubscriptionStatus(); // Проверка состояния подписки при загрузке
+        });
+
+        // Функция для проверки состояния подписки
+        function checkSubscriptionStatus() {
+            const isSubscribed = localStorage.getItem('isSubscribed') === 'true';
+            if (isSubscribed) {
+                updateButtonToComplete("telegramButton");
+            }
+        }
+
+        // Функция для проверки подписки и обновления кнопки
+        function checkSubscription(buttonId) {
+            simulateSubscriptionCheck().then(isSubscribed => {
+                if (isSubscribed) {
+                    localStorage.setItem('isSubscribed', 'true'); // Сохраняем состояние подписки
+                    awardKeys(); // Начисляем 5 ключей
+                    updateButtonToComplete(buttonId); // Изменяем кнопку на "Выполнено"
+                } else {
+                    alert("Пожалуйста, подпишитесь на канал, чтобы получить награду.");
+                }
+            }).catch(error => {
+                console.error("Ошибка проверки подписки:", error);
+            });
+        }
+
+        // Функция симуляции проверки подписки (замените на реальный запрос)
+        function simulateSubscriptionCheck() {
+            return new Promise(resolve => {
+                // Имитация асинхронного запроса
+                setTimeout(() => {
+                    const isSubscribed = Math.random() > 0.5; // Случайное условие подписки
+                    resolve(isSubscribed); // Верните true если подписан, иначе false
+                }, 1000);
+            });
+        }
+
+        function awardCrystals(friendPremium = false) {
+            const crystals = friendPremium ? 1500 : 500;
+            let totalCrystals = localStorage.getItem('totalCrystals') || 0;
+            totalCrystals = parseInt(totalCrystals) + crystals;
+            localStorage.setItem('totalCrystals', totalCrystals);
+            document.getElementById('totalCrystals').textContent = totalCrystals;
+        }
+
+        function onFriendJoins(isNew = true, friendPremium = false) {
+            if (isNew) {
+                awardCrystals(friendPremium);
+            }
+        }
+
+        function awardKeys() {
+            let totalKeys = localStorage.getItem('totalKeys') || 0;
+            totalKeys = parseInt(totalKeys) + 5;
+            localStorage.setItem('totalKeys', totalKeys);
+            alert("Вы получили 5 ключей!");
+        }
+
+        function updateButtonToComplete(buttonId) {
+            const button = document.getElementById(buttonId);
+            button.textContent = "Выполнено";
+            button.disabled = true;
+        }
+
+
+        
+        function openTelegram() {
+            window.open("https://t.me/holiarus", "_blank");
+            checkSubscription("telegramButton");
+        }
+
+        function goToMenu() {
+            window.location.href = "menu.html"; // Страница для меню
+        }
+
+        function goToShop() {
+            window.location.href = "shop.html"; // Страница для магазина
+        }
+
+        function goToFriends() {
+            window.location.href = "friends.html"; // Страница для друзей
+        }
+        function goToSkins() {
+    window.location.href = "skins.html"; // Страница для скинов
+}
+
+
+
+        window.addEventListener('DOMContentLoaded', function() {
+            let totalCrystals = localStorage.getItem('totalCrystals') || 0;
+            document.getElementById('totalCrystals').textContent = totalCrystals;
+        });
+
+
+        document.addEventListener("DOMContentLoaded", function() {
+    const tasks = [
+        { id: 'task1', condition: () => parseInt(localStorage.getItem('lastRoundScore_game2') || '0') >= 1000, reward: 300 },
+        { id: 'task2', condition: () => parseInt(localStorage.getItem('lastRoundCrystals_game2') || '0') >= 50, reward: 200 },
+        { id: 'task3', condition: () => parseInt(localStorage.getItem('lastRoundScore_game2') || '0') >= 5000, reward: 300, keys: 10 },
+        { id: 'task4', condition: () => localStorage.getItem('smallGiftPurchased') === 'true', reward: 500 },
+        { id: 'task5', condition: () => JSON.parse(localStorage.getItem('purchasedSkins') || '[]').includes('green_square'), keys: 5 },
+        { id: 'task6', condition: () => parseInt(localStorage.getItem('totalKeys') || '0') >= 10, reward: 1000 },
+        { id: 'task7', condition: () => JSON.parse(localStorage.getItem('purchasedSkins') || '[]').length >= 5, reward: 1200, keys: 15 },
+        { id: 'task8', condition: () => parseInt(localStorage.getItem('lastRoundCrystals_game2') || '0') >= 100, reward: 1000 },
+        { id: 'task9', condition: () => parseInt(localStorage.getItem('lastRoundCrystals_game1') || '0') >= 15, reward: 500 },
+        { id: 'task10', condition: () => parseInt(localStorage.getItem('lastRoundCrystals_game1') || '0') >= 20, reward: 300 },
+        { id: 'task11', condition: () => parseInt(localStorage.getItem('lastRoundCrystals_game1') || '0') >= 50, reward: 800 },
+        { id: 'task12', condition: () => parseInt(localStorage.getItem('lastRoundCrystals_game1') || '0') >= 100, reward: 1700 },
+        { id: 'task13', condition: () => JSON.parse(localStorage.getItem('purchasedSkins') || '[]').length >= 2, reward: 3000, keys: 5 },
+        { id: 'task14', condition: () => parseInt(localStorage.getItem('lastRoundCrystals_game1') || '0') >= 1000, reward: 10000 },
+        { id: 'task15', condition: () => parseInt(localStorage.getItem('lastRoundCrystals_game2') || '0') >= 80, reward: 500 },
+        { id: 'task16', condition: () => JSON.parse(localStorage.getItem('purchasedSkins') || '[]').length >= 10, reward: 5200, keys: 5 }
+    ];
+
+    tasks.forEach(task => {
+                const button = document.getElementById(task.id);
+                const rewardClaimed = localStorage.getItem(`${task.id}_claimed`) === 'true';
+
+                function updateButtonState() {
+                    if (task.condition() && !rewardClaimed) {
+                        button.disabled = false;
+                        button.classList.add("active");
+                        button.classList.remove("completed");
+                    } else if (rewardClaimed) {
+                        button.textContent = "Выполнено";
+                        button.disabled = true;
+                        button.classList.add("completed");
+                        button.classList.remove("active");
+                    } else {
+                        button.disabled = true;
+                        button.classList.remove("active", "completed");
+                    }
+                }
+
+                button.addEventListener("click", function() {
+                    if (!rewardClaimed && task.condition()) {
+                        let totalCrystals = parseInt(localStorage.getItem('totalCrystals') || '0');
+                        let totalKeys = parseInt(localStorage.getItem('totalKeys') || '0');
+
+                        if (task.reward) {
+                            totalCrystals += task.reward;
+                            localStorage.setItem('totalCrystals', totalCrystals);
+                        }
+
+                        if (task.keys) {
+                            totalKeys += task.keys;
+                            localStorage.setItem('totalKeys', totalKeys);
+                        }
+
+                        alert(`Вы получили ${task.reward ? task.reward + ' кристаллов' : ''}${task.reward && task.keys ? ' и ' : ''}${task.keys ? task.keys + ' ключей' : ''}!`);
+
+                        localStorage.setItem(`${task.id}_claimed`, 'true');
+                        button.textContent = "Выполнено";
+                        button.disabled = true;
+                        button.classList.add("completed");
+                        button.classList.remove("active");
+
+                        // Переброс на menu.html после получения награды
+                        setTimeout(() => {
+                            window.location.href = 'menu.html';
+                        }, 1000);
+                    }
+                });
+
+                updateButtonState();
+                setInterval(updateButtonState, 3000);
+            });
+        });
+    </script>
+
+</body>
+</html>

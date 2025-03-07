@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Modern Jump Adventure</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            min-height: 100vh;
+            overflow: hidden; /* Это предотвращает появление прокрутки */
+            user-select: none; /* Запрет на выделение текста */
+            -webkit-user-select: none; /* Запрет на выделение текста в Safari */
+            -moz-user-select: none; /* Запрет на выделение текста в Firefox */
+            -ms-user-select: none; /* Запрет на выделение текста в Internet Explorer */
+        }
+
+        canvas {
+            display: block;
+            width: 70vw; /* Занимает ширину экрана */
+            height: 70vh; /* Занимает высоту экрана */
+        }
+
+        #backgroundVideo {
+            pointer-events: none; /* Отключает взаимодействие с элементом */
+            user-select: none;    /* Запрещает выделение видео */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        #score, #crystalScore {
+            position: absolute;
+            left: 20px;
+            color: #fff;
+            font-size: 24px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 8px;
+            z-index: 1;
+        }
+
+        #score {
+            top: 10px; /* Поднято выше */
+        }
+
+        #crystalScore {
+            top: 50px; /* Поднято выше */
+        }
+
+        #gameOverModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            z-index: 10;
+        }
+
+        .modal-content {
+            background: #222;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        button {
+            background: linear-gradient(135deg, #ff5733, #ff8000);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0px 4px 10px rgba(255, 87, 51, 0.5);
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #ff8000, #ff5733);
+            box-shadow: 0px 6px 15px rgba(255, 87, 51, 0.7);
+        }
+
+        button {
+            background: #ff5733;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #c70039;
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 100px; /* Поднято выше */
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            z-index: 1;
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.7);
+            border: none;
+            border-radius: 30px;
+            font-size: 24px;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .control-btn:active {
+            background: rgba(200, 200, 200, 0.7);
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: rgba(98, 98, 98, 0.5);
+            padding: 10px 0;
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 95%;
+            border-radius: 15px;
+            margin: 0 auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .footer-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .footer-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .footer-item img {
+            width: 28px;
+            height: 28px;
+            margin-bottom: 5px;
+        }
+
+        .footer-item span {
+            font-size: 12px;
+        }
+
+        .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #222;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.modal-content button {
+    margin: 10px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    border-radius: 5px;
+}
+
+#confirmYes {
+    background-color: #ff4500;
+    color: white;
+}
+
+#confirmNo {
+    background-color: gray;
+    color: white;
+}
+
+    </style>
+</head>
+<body>
+    <video id="backgroundVideo" autoplay muted loop playsinline>
+        <source src="video.MP4" type="video/mp4">
+    </video>
+
+    <div id="score">Score: 0</div>
+    <div id="crystalScore">Crystals: 0</div>
+        <div id="gameOverModal">
+            <div class="modal-content">
+                <h2>Game Over!</h2>
+                <p id="finalScore">Score: 0</p>
+                <p id="finalCrystals">Crystals: 0</p>
+                <div>
+                    <button id="restartButton">Restart</button>
+                    <button id="menuButton">Menu</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="startMessage" style="
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 16px;
+        text-align: center;
+        background: none;
+        padding: 10px;
+        z-index: 100;
+    ">
+         Чтобы начать игру, нажмите ↑ (стрелку вверх).<br/>Удерживайте героя в воздухе, иначе если он упадет...
+         <br/>игра завершиться!
+    </div>
+    
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="controls">
+        <button id="leftButton" class="control-btn">←</button>
+        <button id="jumpButton" class="control-btn">↑</button>
+        <button id="rightButton" class="control-btn">→</button>
+    </div>
+
+    <div class="footer">
+        <div class="footer-item" onclick="goToMenu()">
+            <img src="m.png" alt="Exchange">
+            <span>Menu</span>
+        </div>
+        <div class="footer-item" onclick="goToShop()">
+            <img src="t.png" alt="Mine">
+            <span>Shop</span>
+        </div>
+        <div class="footer-item" onclick="goToFriends()">
+            <img src="f.png" alt="Friends">
+            <span>Friends</span>
+        </div>
+        <div class="footer-item" onclick="goToSkins()">
+            <img src="cl.png" alt="Skins">
+            <span>Skins</span>
+        </div>
+    </div>
+    <div id="confirmModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <p>Вы точно хотите покинуть игру? (После выхода ваш игровой режим не сохранится)</p>
+            <button id="confirmYes">Да</button>
+            <button id="confirmNo">Нет</button>
+        </div>
+    </div>
+
+    <script>
+            // Show the Game Over modal for demonstration
+    document.getElementById('gameOverModal').style.display = 'flex';
+
+document.getElementById('restartButton').addEventListener('click', () => {
+    // Restart game logic here
+    alert('Restarting game...');
+});
+
+document.getElementById('menuButton').addEventListener('click', () => {
+    window.location.href = 'menu.html';
+});
+
+let navigationUrl = ""; // Переменная для хранения ссылки
+
+function confirmNavigation(url) {
+    navigationUrl = url; // Сохраняем нужный URL
+    document.getElementById("confirmModal").style.display = "flex";
+}
+
+// При нажатии "Да" – переход на страницу
+document.getElementById("confirmYes").addEventListener("click", function () {
+    window.location.href = navigationUrl;
+});
+
+// При нажатии "Нет" – закрытие модального окна
+document.getElementById("confirmNo").addEventListener("click", function () {
+    document.getElementById("confirmModal").style.display = "none";
+});
+
+// Обновляем функции навигации
+function goToMenu() {
+    confirmNavigation("menu.html");
+}
+
+function goToShop() {
+    confirmNavigation("shop.html");
+}
+
+function goToFriends() {
+    confirmNavigation("friends.html");
+}
+
+function goToSkins() {
+    confirmNavigation("skins.html");
+}
+
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const crystalImage = new Image();
+        crystalImage.src = '5.png';
+
+        const player = {
+            x: canvas.width / 2 - 25,
+            y: canvas.height - 100,
+            width: 50,
+            height: 50,
+            speedY: 0,
+            speedX: 0,
+            onGround: false,
+            skin: null,
+            color: 'lime'
+        };
+
+        // Load selected skin
+        window.addEventListener('load', () => {
+            const selectedSkin = localStorage.getItem('selectedSkin');
+
+            if (selectedSkin === 'halloween') {
+                loadSkin('1.jpg');
+            } else if (selectedSkin === 'bat') {
+                loadSkin('e.png');
+            } else if (selectedSkin === 'white_square') {
+                loadSkin('w.jpg');
+            } else if (selectedSkin === 'yellow') {
+                loadSkin('yl.png');
+            } else if (selectedSkin === 'red_square') {
+                loadSkin('red.png');
+            } else if (selectedSkin === 'green_square') {
+                loadSkin('green.jpg');
+            } else if (selectedSkin === 'pink_square') {
+                loadSkin('rrr.jpg');
+            } else if (selectedSkin === 'orange_square') {
+                loadSkin('o.png');
+            } else if (selectedSkin === 'snowman') {
+                loadSkin('snow.png');
+            } else if (selectedSkin === 'santa') {
+                loadSkin('dedd.png');
+            } else if (selectedSkin === 'purple_square') {
+                loadSkin('fff.png');
+            } else if (selectedSkin === 'basketball') {
+                loadSkin('bbb.png');
+            } else if (selectedSkin === 'football') {
+                loadSkin('football.png');
+            } else if (selectedSkin === 'boi') {
+                loadSkin('pum.png');
+            } else if (selectedSkin === 'cat') {
+                loadSkin('cat.png');
+            } else if (selectedSkin === 'mem') {
+                loadSkin('mem.avif');
+            } else if (selectedSkin === 'rocket') {
+                loadSkin('rocket.gif');
+            } else if (selectedSkin === 'red') {
+                loadSkin('red.png');
+            } else if (selectedSkin === 'luko') {
+                loadSkin('opaa.png');
+            } else if (selectedSkin === 'emm') {
+                loadSkin('smm.png');
+            } else if (selectedSkin === 'yo') {
+                loadSkin('ping.png');
+
+
+            } else {
+                player.color = '#00f';
+            }
+        });
+
+        function loadSkin(imageSrc) {
+            player.color = 'transparent';
+            const skinImage = new Image();
+            skinImage.src = imageSrc;
+            skinImage.onload = () => {
+                player.skin = skinImage;
+            };
+        }
+
+        function drawPlayer() {
+            if (player.skin) {
+                ctx.drawImage(player.skin, player.x, player.y, player.width, player.height);
+            } else {
+                ctx.fillStyle = player.color;
+                ctx.fillRect(player.x, player.y, player.width, player.height);
+            }
+        }
+
+    let platforms = [];
+    let crystals = []; // Массив для кристаллов
+    let score = 0;
+    let crystalScore = 0; // Счётчик кристаллов
+    let gravity = 0.5;
+    let jumpForce = -8;
+    let gameOver = false;
+    let gameStarted = false; // Флаг для отслеживания начала игры
+    let keys = { left: false, right: false, jump: false };
+
+    // Скрыть модальное окно при старте
+    document.getElementById('gameOverModal').style.display = 'none';
+
+    function triggerGameOver() {
+    console.log(`Game Over triggered! Final crystals: ${crystalScore}`);
+    localStorage.setItem('lastRoundCrystals', crystalScore);
+    localStorage.setItem('lastRoundScore', score); // Сохраняем счёт игры
+
+    let totalCrystals = parseInt(localStorage.getItem('totalCrystals') || '0');
+    totalCrystals += crystalScore;
+    localStorage.setItem('totalCrystals', totalCrystals);
+
+    gameOver = true;
+    document.getElementById('gameOverModal').style.display = 'flex';
+    document.getElementById('finalScore').textContent = `Score: ${score}`;
+    document.getElementById('finalCrystals').textContent = `Crystals: ${crystalScore}`;
+}
+
+
+
+// Замените проверку на проигрыш
+if (player.y > canvas.height) {
+    triggerGameOver();
+}
+
+
+
+    function drawPlatforms() {
+        ctx.fillStyle = '#3498db';
+        platforms.forEach(platform => {
+            ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+        });
+    }
+
+    function drawCrystals() {
+    crystals.forEach(crystal => {
+        ctx.drawImage(crystalImage, crystal.x - 15, crystal.y - 15, 30, 30);
+    });
+}
+
+
+function updatePlayer() {
+    if (gameOver) return;
+
+    if (keys.jump) {
+        player.speedY = jumpForce;
+        keys.jump = false;
+    }
+
+    player.speedY += gravity;
+    player.y += player.speedY;
+
+    if (keys.left) player.speedX = -3;
+else if (keys.right) player.speedX = 3;
+else player.speedX = 0;
+
+
+    player.x += player.speedX;
+
+    // Ограничиваем игрока в пределах холста
+    player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+    player.y = Math.max(0, player.y);
+
+    if (player.y > canvas.height) {
+        triggerGameOver();
+    gameOver = true;
+    document.getElementById('gameOverModal').style.display = 'flex';
+}
+
+    platforms.forEach(platform => {
+        if (
+            player.x < platform.x + platform.width &&
+            player.x + player.width > platform.x &&
+            player.y + player.height <= platform.y &&
+            player.y + player.height + player.speedY > platform.y
+        ) {
+            player.speedY = 0;
+            player.y = platform.y - player.height;
+        }
+    });
+
+    crystals = crystals.filter(crystal => {
+    const collected =
+        player.x < crystal.x + 10 &&
+        player.x + player.width > crystal.x - 10 &&
+        player.y < crystal.y + 10 &&
+        player.y + player.height > crystal.y - 10;
+    if (collected) {
+        crystalScore++;
+        document.getElementById('crystalScore').textContent = `Crystals: ${crystalScore}`;
+    }
+
+    localStorage.setItem('lastRoundCrystals_game2', crystalScore);
+localStorage.setItem('lastRoundScore_game2', score);
+
+    return !collected;
+});
+
+
+}
+
+
+
+
+function initializePlatforms() {
+    platforms = [];
+    crystals = [];
+    for (let i = 0; i < 10; i++) { // Начальное число платформ 10 (в пределах 8-12)
+        const width = 50; // Маленькие платформы фиксированной ширины
+        const x = Math.random() * (canvas.width - width);
+        const y = canvas.height - i * 100 - 50;
+        platforms.push({ x, y, width, height: 20 });
+        crystals.push({ x: x + width / 2, y: y - 10 });
+    }
+}
+
+function updatePlatforms() {
+    platforms.forEach((platform, index) => {
+        platform.y += 2;
+        if (crystals[index]) crystals[index].y += 2;
+    });
+
+    // Фильтрация только тех платформ, что остаются видимыми
+    platforms = platforms.filter(platform => platform.y < canvas.height);
+    crystals = crystals.filter(crystal => crystal.y < canvas.height);
+
+    // Если платформ становится меньше 8, создаем новую
+    while (platforms.length < 8) {
+        const width = 50;
+        const x = Math.random() * (canvas.width - width);
+        const y = platforms[platforms.length - 1].y - 100; // Размещаем выше последней платформы
+        platforms.push({ x, y, width, height: 20 });
+        crystals.push({ x: x + width / 2, y: y - 10 });
+    }
+
+    // Ограничиваем максимальное число платформ до 12
+    while (platforms.length > 12) {
+        platforms.shift(); // Удаляем самую старую платформу
+        crystals.shift();
+    }
+
+    score++;
+    document.getElementById('score').textContent = `Score: ${score}`;
+
+
+}
+
+
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawPlayer();
+        drawPlatforms();
+        drawCrystals();
+    }
+
+    function gameLoop() {
+        updatePlayer();
+        updatePlatforms();
+        draw();
+        if (!gameOver) requestAnimationFrame(gameLoop);
+    }
+
+    // Запуск игры
+    function startGame() {
+        if (!gameStarted) {
+            const startMsg = document.getElementById('startMessage');
+            if (startMsg) startMsg.style.display = 'none';
+            initializePlatforms();
+            gameStarted = true;
+            gameLoop();
+        }
+    }
+
+
+ // Мигание кнопки прыжка до начала игры
+ const jumpButton = document.getElementById('jumpButton');
+    let blinkInterval = setInterval(() => {
+        if (!gameStarted) {
+            jumpButton.style.backgroundColor = jumpButton.style.backgroundColor === 'red' ? '' : 'red';
+        } else {
+            clearInterval(blinkInterval);
+            jumpButton.style.backgroundColor = '';
+        }
+    }, 500);
+
+ // Удаление сообщения при нажатии стрелки вверх или пробела
+ window.addEventListener('keydown', (e) => {
+        if (e.code === 'ArrowUp' || e.code === 'Space') {
+            startGame();
+        }
+    });
+
+    // Также для кнопки на экране
+    jumpButton.addEventListener('mousedown', () => {
+        startGame();
+    });
+
+
+    
+    // Управление клавиатурой
+    window.addEventListener('keydown', e => {
+        if (e.code === 'Space' && !gameStarted) {
+            startGame(); // Запуск игры при нажатии пробела
+        }
+        if (e.code === 'ArrowLeft') keys.left = true;
+        if (e.code === 'ArrowRight') keys.right = true;
+        if (e.code === 'Space') keys.jump = true;
+    });
+
+    window.addEventListener('keyup', e => {
+        if (e.code === 'ArrowLeft') keys.left = false;
+        if (e.code === 'ArrowRight') keys.right = false;
+        if (e.code === 'Space') keys.jump = false;
+    });
+
+    // Управление на экране (для телефона)
+    document.getElementById('jumpButton').addEventListener('mousedown', () => {
+        if (!gameStarted) {
+            startGame(); // Запуск игры при нажатии кнопки "вверх"
+        }
+        keys.jump = true;
+    });
+
+    document.getElementById('jumpButton').addEventListener('mouseup', () => keys.jump = false);
+
+    document.getElementById('restartButton').addEventListener('click', () => {
+    // Сброс состояния игрока
+    player.x = canvas.width / 2 - 25;
+    player.y = canvas.height - 100;
+    player.speedY = 0;
+    player.speedX = 0;
+    player.onGround = false;
+
+    // Сброс игровых данных
+    platforms = [];
+    crystals = [];
+    score = 0;
+    crystalScore = 0;
+    document.getElementById('score').textContent = `Score: 0`;
+    document.getElementById('crystalScore').textContent = `Crystals: 0`;
+
+    // Скрываем окно "Game Over"
+    document.getElementById('gameOverModal').style.display = 'none';
+
+    // Сбрасываем флаги игры
+    gameOver = false;
+    gameStarted = false; // Ждем нажатия кнопки для старта
+
+    // Очищаем холст
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Инициализируем платформы, но НЕ запускаем gameLoop()
+    initializePlatforms();
+    
+    // Игрок должен нажать кнопку "вверх", чтобы начать заново
+});
+
+let startX = 0;
+let startY = 0;
+
+canvas.addEventListener('touchstart', (e) => {
+    const touch = e.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+});
+
+canvas.addEventListener('touchend', (e) => {
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - startX;
+    const deltaY = touch.clientY - startY;
+
+    if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY < 0) {
+        // Swipe вверх — прыжок
+        keys.jump = true;
+        setTimeout(() => keys.jump = false, 100); // Сброс
+    } else if (deltaX < 0) {
+        // Swipe влево
+        keys.left = true;
+        setTimeout(() => keys.left = false, 100); // Сброс
+    } else if (deltaX > 0) {
+        // Swipe вправо
+        keys.right = true;
+        setTimeout(() => keys.right = false, 100); // Сброс
+    }
+});
+const buttons = {
+    left: document.getElementById('leftButton'),
+    right: document.getElementById('rightButton'),
+    jump: document.getElementById('jumpButton'),
+};
+
+// Функция для обработки событий touchstart
+Object.keys(buttons).forEach((key) => {
+    buttons[key].addEventListener('touchstart', (e) => {
+        e.preventDefault(); // Предотвращение прокрутки страницы на телефоне
+        keys[key] = true;
+
+        // Специальная обработка для прыжка
+        if (key === 'jump' && !gameStarted) {
+            startGame(); // Запуск игры, если она ещё не началась
+        }
+    });
+
+    buttons[key].addEventListener('touchend', (e) => {
+        e.preventDefault();
+        keys[key] = false; // Сброс состояния кнопки после завершения касания
+    });
+});
+
+        document.getElementById('leftButton').addEventListener('mousedown', () => keys.left = true);
+        document.getElementById('rightButton').addEventListener('mousedown', () => keys.right = true);
+        document.getElementById('jumpButton').addEventListener('mousedown', () => keys.jump = true);
+
+        document.getElementById('leftButton').addEventListener('mouseup', () => keys.left = false);
+        document.getElementById('rightButton').addEventListener('mouseup', () => keys.right = false);
+        document.getElementById('jumpButton').addEventListener('mouseup', () => keys.jump = false);
+
+        gameLoop();
+    </script>
+</body>
+</html>

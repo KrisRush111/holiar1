@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Выбор Скина</title>
+    <style>
+            body {
+                min-height: calc(100vh + 10cm); /* Увеличиваем минимальную высоту на 2 см */
+            background: linear-gradient(135deg, #1e1e2f, #3c3c50);
+            color: #fff;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        #skinContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    max-width: 1000px;
+    margin-top: 20px;
+    padding-bottom: 50px; /* Добавлен отступ в 50px (5 см) */
+}
+
+
+        .skin-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px; /* Уменьшено с 20px */
+    border-radius: 15px;
+    width: 140px; /* Уменьшено с 180px */
+    text-align: center;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.5);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    position: relative;
+}
+
+.skin-item img {
+    width: 90px; /* Уменьшено с 120px */
+    height: 90px; /* Уменьшено с 120px */
+    border-radius: 50%;
+    margin-bottom: 10px; /* Уменьшено с 15px */
+    transition: transform 0.4s ease;
+}
+
+        .skin-item:hover {
+            transform: scale(1.1);
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.7);
+        }
+
+        .skin-item:hover img {
+            transform: rotate(15deg) scale(1.1);
+        }
+
+        .skin-button {
+            background: linear-gradient(135deg, #ff7b54, #ffcc54);
+            color: #fff;
+            padding: 12px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: bold;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+            transition: background 0.4s, transform 0.2s ease-in-out;
+        }
+
+        .skin-button:hover {
+            background: linear-gradient(135deg, #ffcc54, #ff7b54);
+            transform: translateY(-5px);
+        }
+
+        .skin-button.selected {
+            background: linear-gradient(135deg, #4caf50, #8bc34a);
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 255, 0, 0.4);
+        }
+
+        .no-skins {
+            color: #ddd;
+            font-size: 1.4rem;
+        }
+
+        .no-skins a {
+            color: #ffa500;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .no-skins a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 0;
+            position: fixed;
+            bottom: 10px;
+            width: 95%;
+            border-radius: 15px;
+            margin: 0 auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .footer-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .footer-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .footer-item img {
+            width: 28px;
+            height: 28px;
+            margin-bottom: 5px;
+        }
+
+        .footer-item span {
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div id="selectedSkinDisplay" style="display: none;">
+        <img id="selectedSkinImage" src="" alt="Выбранный скин" style="width: 150px; height: 150px; border-radius: 50%; margin-bottom: 20px;">
+        <p id="selectedSkinName" style="font-size: 1.2rem; font-weight: bold;"></p>
+    </div>
+    <div id="skinContainer"></div>
+
+    
+    <div id="skinContainer"></div>
+    <div class="footer">
+        <div class="footer-item" onclick="goToMenu()">
+            <img src="m.png" alt="Exchange">
+            <span>Menu</span>
+        </div>
+        <div class="footer-item" onclick="goToShop()">
+            <img src="t.png" alt="Mine">
+            <span>Shop</span>
+        </div>
+        <div class="footer-item" onclick="goToFriends()">
+            <img src="f.png" alt="Friends">
+            <span>Friends</span>
+        </div>
+        <div class="footer-item" onclick="goToSkins()">
+            <img src="cl.png" alt="Skins"> <!-- Добавьте сюда нужный значок для "Skins" -->
+            <span>Skins</span>
+        </div>
+    </div>
+    
+    <script>
+        
+        function goToMenu() {
+        window.location.href = "menu.html"; // Страница для меню
+    }
+
+    function goToShop() {
+        window.location.href = "shop.html"; // Страница для магазина
+    }
+
+    function goToFriends() {
+        window.location.href = "friends.html"; // Страница для друзей
+    }
+    function goToSkins() {
+    window.location.href = "skins.html"; // Страница для скинов
+}
+ 
+
+const purchasedSkins = JSON.parse(localStorage.getItem('purchasedSkins') || '[]');
+const selectedSkin = localStorage.getItem('selectedSkin');
+
+const skinImages = {
+    halloween: '1.jpg',
+    bat: 'e.png',
+    white_square: 'w.jpg',
+    yellow: 'yl.png',
+    green_square: 'green.jpg',
+    orange_square: 'o.png',
+    pink_square: 'rrr.jpg',
+    purple_square: 'fff.png',
+    snowman: 'snow.png',
+    santa: 'dedd.png',
+    basketball: 'bbb.png',
+    football: 'football.png',
+    boi: 'pum.png',
+    cat: 'cat.png',
+    mem: 'mem.avif',
+    rocket: 'rocket.gif',
+    red: 'red.png',
+    luko: 'opaa.png',
+    emm: 'smm.png',
+    yo: 'ping.png'
+};
+
+function updateSelectedSkinDisplay(skin) {
+    const displayBlock = document.getElementById('selectedSkinDisplay');
+    const imgElement = document.getElementById('selectedSkinImage');
+    const nameElement = document.getElementById('selectedSkinName');
+
+    if (skin) {
+        displayBlock.style.display = 'block';
+        imgElement.src = skinImages[skin] || 'default.png';
+        nameElement.textContent = `Выбранный скин: ${skin}`;
+    } else {
+        displayBlock.style.display = 'none';
+    }
+}
+
+if (purchasedSkins.length === 0) {
+    document.getElementById('skinContainer').innerHTML = '<p class="no-skins">Нет купленных скинов. Перейдите в <a href="shop.html">магазин</a> для покупки.</p>';
+} else {
+    updateSelectedSkinDisplay(selectedSkin);
+
+    purchasedSkins.forEach(skin => {
+        const skinItem = document.createElement('div');
+        skinItem.className = 'skin-item';
+
+        const img = document.createElement('img');
+        img.src = skinImages[skin] || 'default.png';
+        img.alt = skin;
+        skinItem.appendChild(img);
+
+        const button = document.createElement('button');
+        button.className = 'skin-button';
+        button.textContent = skin === selectedSkin ? `Выбран: ${skin}` : `Выбрать ${skin}`;
+
+        if (skin === selectedSkin) {
+            button.classList.add('selected');
+        }
+
+        button.addEventListener('click', () => {
+            localStorage.setItem('selectedSkin', skin);
+            updateSelectedSkinDisplay(skin);
+            alert(`Скин "${skin}" выбран`);
+            location.reload();
+        });
+
+        skinItem.appendChild(button);
+        document.getElementById('skinContainer').appendChild(skinItem);
+    });
+}
+
+
+    </script>
+</body>
+</html>

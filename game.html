@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>Holiarus: Прыжковое приключение</title>
+    <style>
+       body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            min-height: 100vh;
+            overflow: hidden; /* Это предотвращает появление прокрутки */
+            user-select: none; /* Запрет на выделение текста */
+            -webkit-user-select: none; /* Запрет на выделение текста в Safari */
+            -moz-user-select: none; /* Запрет на выделение текста в Firefox */
+            -ms-user-select: none; /* Запрет на выделение текста в Internet Explorer */
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            background-image: url('img.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            color: #fff;
+            transition: background-image 1s ease-in-out; /* Плавная смена фона */
+        }
+
+        body.new-background {
+            background-image: url('9.jpg'); /* Новый фон */
+        }
+
+        .game-container {
+            margin-top: 0; /* Убираем отступ сверху */
+            text-align: center; /* Центрирование содержимого */
+        }
+        canvas {
+            display: block;
+            margin: 0 auto;
+            width: 100%;
+            height: auto;
+            background: transparent;
+        }
+        #controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .touch-controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px; /* Увеличьте отступ сверху, чтобы опустить кнопки ниже */
+}
+        #scoreboard {
+            text-align: center;
+            margin: 20px auto; /* Добавляем отступы сверху и снизу для счета */
+            font-size: 24px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 10px;
+            width: fit-content;
+        }
+        h1 {
+            margin-top: 20px; /* Добавляем небольшой отступ сверху для заголовка */
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+        .shop-buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .shop-button {
+            margin: 0 10px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .shop-button:hover {
+            transform: scale(1.1);
+        }
+        #gameOverModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Чтобы модальное окно было поверх остальных элементов */
+}
+
+.modal-content {
+    background-color: #000000;
+    color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+#restartButton, #menuButton {
+    background: linear-gradient(135deg, rgb(255, 111, 0), rgb(255, 165, 0)); /* Градиентный фон */
+    color: #fff; /* Белый текст для лучшей читаемости */
+    border: none;
+    padding: 12px 25px; /* Более крупные кнопки */
+    font-size: 20px; /* Увеличенный шрифт для удобства */
+    border-radius: 8px; /* Скругленные углы */
+    cursor: pointer;
+    transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease; /* Плавные переходы */
+    box-shadow: 0px 4px 15px rgba(255, 111, 0, 0.5); /* Тень для объема */
+    margin: 10px; /* Отступы между кнопками */
+}
+
+#restartButton:hover, #menuButton:hover {
+    transform: scale(1.1); /* Легкое увеличение при наведении */
+    background: linear-gradient(135deg, rgb(255, 165, 0), rgb(255, 111, 0)); /* Изменение направления градиента */
+    box-shadow: 0px 6px 20px rgba(255, 165, 0, 0.8); /* Увеличенная тень при наведении */
+}
+#continueButton {
+    background: linear-gradient(135deg, rgb(155, 56, 3), rgb(255, 123, 0)); /* Градиентный фон */
+    color: #fff; /* Белый текст для лучшей читаемости */
+    border: none;
+    padding: 12px 35px; /* Размер кнопки */
+    font-size: 20px; /* Размер шрифта */
+    border-radius: 8px; /* Скругленные углы */
+    cursor: pointer;
+    transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease; /* Плавные переходы */
+    box-shadow: 0px 4px 15px rgba(255, 111, 0, 0.5); /* Тень */
+    margin: 10px; /* Отступ */
+}
+
+#continueButton:hover {
+    transform: scale(1.1); /* Увеличение при наведении */
+    background: linear-gradient(135deg, rgb(32, 66, 128), rgb(113, 220, 255)); /* Изменение направления градиента */
+    box-shadow: 0px 6px 20px rgb(141, 227, 255); /* Увеличенная тень при наведении */
+}
+.footer {
+    position: fixed;
+    bottom: 0;
+    left: 0; /* Добавлено для выравнивания */
+    right: 0; /* Добавлено для выравнивания */
+    background-color: rgba(58, 58, 58, 0.8);
+    padding: 10px 0;
+    border-radius: 15px;
+}
+.footer {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 0;
+            position: fixed;
+            bottom: 10px;
+            width: 95%;
+            border-radius: 15px;
+            margin: 0 auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .footer-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .footer-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .footer-item img {
+            width: 28px;
+            height: 28px;
+            margin-bottom: 5px;
+        }
+
+        .footer-item span {
+            font-size: 12px;
+        }
+.touch-button {
+    background-color: #ffffff;
+    border: none;
+    color: rgb(90, 81, 81);
+    padding: 15px; /* Уменьшено для уменьшения размера */
+    margin: 10px; /* Меньший отступ между кнопками */
+    font-size: 20px; /* Уменьшено для более компактного отображения */
+    border-radius: 8px;
+}
+
+@media (max-width: 1200px) {
+    .touch-button {
+        padding: 16px; /* Еще меньше для экранов шириной до 1200px */
+        font-size: 22px;
+    }
+}
+
+@media (max-width: 768px) {
+    .touch-button {
+        padding: 15px; /* Минимальный размер для мобильных устройств */
+        font-size: 21px;
+    }
+}
+
+@media (max-width: 540px) {
+    .touch-button {
+        padding: 10px; /* Минимальный размер для мобильных устройств */
+        font-size: 16px;
+    }
+}
+
+body {
+    background-image: url('img.jpg'); /* Основной фон */
+    background-size: cover;
+    background-position: 100% 0;
+    animation: moveBackground1 30s linear infinite;
+}
+
+/* Анимация для основного фона */
+@keyframes moveBackground1 {
+    from {
+        background-position: 100% 0;
+    }
+    to {
+        background-position: 0 0;
+    }
+}
+
+body.new-background {
+    background-image: url('9.jpg'); /* Второй фон */
+    background-size: cover;
+    background-position: 100% 0;
+    animation: moveBackground2 30s linear infinite;
+}
+
+/* Анимация для второго фона */
+@keyframes moveBackground2 {
+    from {
+        background-position: 100% 0;
+    }
+    to {
+        background-position: 0 0;
+    }
+}
+
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #222;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.modal-content button {
+    margin: 10px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    border-radius: 5px;
+}
+
+#confirmYes {
+    background-color: #ff4500;
+    color: white;
+}
+
+#confirmNo {
+    background-color: gray;
+    color: white;
+}
+
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <h1>HOLIARUS</h1>
+        <div id="scoreboard">Собрано кристаллов: 0</div>
+        <canvas id="gameCanvas" width="800" height="700"></canvas> 
+
+        <div id="gameOverModal" style="display: none;">
+            <div class="modal-content">
+                <h2>Игра окончена!</h2>
+                <p>Вы упали с платформы.</p>
+                <p>Собрано кристаллов: <span id="finalScore">0</span></p>
+                <button id="restartButton">Начать заново</button><br>
+                <button id="menuButton">Меню</button><br>
+                <button id="continueButton">
+                    <span id="keyCount">2</span> <!-- Число ключей -->
+                    <img src="key.png" alt="Key Icon" style="width: 20px; height: 20px; vertical-align: middle;"> <!-- Иконка ключа -->
+                </button>
+                
+        </div>
+        
+        </div>
+
+        <div class="touch-controls" style="margin-top: 7px;">
+            <button class="touch-button" id="leftButton">Влево</button>
+            <button class="touch-button" id="jumpButton">Прыжок</button>
+            <button class="touch-button" id="rightButton">Вправо</button>
+        </div>
+        <div class="footer">
+            <div class="footer-item" onclick="goToMenu()">
+                <img src="m.png" alt="Exchange">
+                <span>Menu</span>
+            </div>
+            <div class="footer-item" onclick="goToShop()">
+                <img src="t.png" alt="Mine">
+                <span>Shop</span>
+            </div>
+            <div class="footer-item" onclick="goToFriends()">
+                <img src="f.png" alt="Friends">
+                <span>Friends</span>
+            </div>
+            <div class="footer-item" onclick="goToSkins()">
+                <img src="cl.png" alt="Skins"> <!-- Добавьте сюда нужный значок для "Skins" -->
+                <span>Skins</span>
+            </div>
+        </div>
+        
+        <div id="confirmModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <p>Вы точно хотите покинуть игру? (После выхода ваш игровой режим не сохранится)</p>
+                <button id="confirmYes">Да</button>
+                <button id="confirmNo">Нет</button>
+            </div>
+        </div>
+        
+
+    <script>
+       let navigationUrl = ""; // Переменная для хранения ссылки
+
+function confirmNavigation(url) {
+    navigationUrl = url; // Сохраняем нужный URL
+    document.getElementById("confirmModal").style.display = "flex";
+}
+
+// При нажатии "Да" – переход на страницу
+document.getElementById("confirmYes").addEventListener("click", function () {
+    window.location.href = navigationUrl;
+});
+
+// При нажатии "Нет" – закрытие модального окна
+document.getElementById("confirmNo").addEventListener("click", function () {
+    document.getElementById("confirmModal").style.display = "none";
+});
+
+// Обновляем функции навигации
+function goToMenu() {
+    confirmNavigation("menu.html");
+}
+
+function goToShop() {
+    confirmNavigation("shop.html");
+}
+
+function goToFriends() {
+    confirmNavigation("friends.html");
+}
+
+function goToSkins() {
+    confirmNavigation("skins.html");
+}
+
+
+        let keysCount = parseInt(localStorage.getItem('totalKeys') || '0');
+        const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+const gravity = 0.5;
+const jumpForce = -10;
+let platformCount = 0;
+let platformGoal = 20; // Цель по количеству платформ
+let crystalScore = 0;
+let gameOver = false;
+let level = 1;
+let flipAngle = 0;
+let flipDirection = 1;
+const platformVerticalGap = 80;
+const minHorizontalGap = 50;
+const maxHorizontalGap = 200;
+const maxPlatforms = 10;  // Ограничение на количество платформ на экране
+let crystalGenerationRate = 0.3;
+
+const player = {
+    x: canvas.width / 2 - 25,
+    y: canvas.height - 60,
+    width: 50,
+    height: 50,
+    speedX: 0,
+    speedY: 0,
+    onGround: false,
+    color: '#00f'
+};
+
+let platformColor = '#808080'; // Исходный цвет платформ
+let platforms = [
+    { x: 150, y: canvas.height - 50, width: 100, height: 20, hasCrystal: false },
+    { x: 300, y: canvas.height - 150, width: 100, height: 20, hasCrystal: false },
+    { x: 500, y: canvas.height - 250, width: 100, height: 20, hasCrystal: false },
+    { x: 250, y: canvas.height - 350, width: 100, height: 20, hasCrystal: false },
+    { x: 400, y: canvas.height - 450, width: 100, height: 20, hasCrystal: false },
+    // Новые платформы
+    { x: 200, y: canvas.height - 550, width: 100, height: 20, hasCrystal: false },
+    { x: 350, y: canvas.height - 650, width: 100, height: 20, hasCrystal: false },
+    { x: 450, y: canvas.height - 750, width: 100, height: 20, hasCrystal: false }
+];
+
+let crystals = [];
+const keys = { left: false, right: false, jump: false };
+
+// Добавляем изображение для кристаллов
+const crystalImage = new Image();
+crystalImage.src = '5.png'; // Путь к вашему изображению
+
+window.addEventListener('keydown', (e) => {
+    if (e.code === 'ArrowLeft') keys.left = true;
+    if (e.code === 'ArrowRight') keys.right = true;
+    if (e.code === 'Space') keys.jump = true;
+});
+
+window.addEventListener('keyup', (e) => {
+    if (e.code === 'ArrowLeft') keys.left = false;
+    if (e.code === 'ArrowRight') keys.right = false;
+    if (e.code === 'Space') keys.jump = false;
+});
+
+document.getElementById('leftButton').addEventListener('touchstart', () => keys.left = true);
+document.getElementById('leftButton').addEventListener('touchend', () => keys.left = false);
+
+document.getElementById('rightButton').addEventListener('touchstart', () => keys.right = true);
+document.getElementById('rightButton').addEventListener('touchend', () => keys.right = false);
+
+document.getElementById('jumpButton').addEventListener('touchstart', () => keys.jump = true);
+document.getElementById('jumpButton').addEventListener('touchend', () => keys.jump = false);
+document.getElementById('menuButton').addEventListener('click', () => {
+    window.location.href = 'menu.html'; // Перенаправление на страницу меню
+});
+
+if (performance.navigation.type === 1) {
+        // Если страница была перезагружена, перенаправляем на index.html
+        window.location.href = 'index.html';
+    }
+
+function updateScore() {
+    document.getElementById('scoreboard').textContent = `Собрано кристаллов: ${crystalScore}`;
+}
+
+function createPlatform() {
+    const lastPlatform = platforms[platforms.length - 1];
+    const platformWidth = Math.max(100 - level * 5, 50);
+    const platformX = Math.random() * (canvas.width - platformWidth);
+    const platformY = lastPlatform ? lastPlatform.y - platformVerticalGap : canvas.height - 50;
+
+    if (lastPlatform) {
+        const horizontalGap = Math.abs(platformX - lastPlatform.x);
+        if (horizontalGap < minHorizontalGap || horizontalGap > maxHorizontalGap) {
+            return createPlatform(); // Пересоздание платформы, если условия не выполнены
+        }
+    }
+
+    // Генерация кристалла с определённой вероятностью (например, 30%)
+    const hasCrystal = Math.random() < 0.3;
+    
+    // Добавляем новую платформу
+    platforms.push({ 
+        x: platformX, 
+        y: platformY, 
+        width: platformWidth, 
+        height: 20, 
+        hasCrystal: hasCrystal 
+    });
+
+    // Если на платформе должен быть кристалл
+    if (hasCrystal) {
+        const crystalX = platformX + Math.random() * (platformWidth - 40);
+        const crystalY = platformY - 40;
+        crystals.push({ 
+            x: crystalX, 
+            y: crystalY, 
+            width: 40, 
+            height: 40, 
+            collected: false 
+        });
+    }
+}
+
+function createCrystal() {
+    const availablePlatforms = platforms.filter(platform => !platform.hasCrystal);
+    if (availablePlatforms.length === 0) return;
+
+    const platform = availablePlatforms[Math.floor(Math.random() * availablePlatforms.length)];
+    const crystalX = platform.x + Math.random() * (platform.width - 40);
+    const crystalY = platform.y - 40;
+
+    crystals.push({ x: crystalX, y: crystalY, width: 40, height: 40, collected: false });
+    platform.hasCrystal = true;
+}
+
+// В конце вашего скрипта, добавьте обработчик события для кнопки "Начать заново"
+document.getElementById('restartButton').addEventListener('click', () => {
+    document.getElementById('gameOverModal').style.display = 'none'; // Прячем модальное окно
+    document.getElementById('finalScore').textContent = crystalScore; // Обновляем кристаллы в модальном окне
+
+    // Сбрасываем значения игры
+    gameOver = false;
+    player.x = canvas.width / 2 - 25;
+    player.y = canvas.height - 60;
+    player.speedX = 0;
+    player.speedY = 0;
+
+    crystals = [];
+    crystalScore = 0;
+    platformCount = 0;
+    level = 1;
+    platformColor = '#808080';
+    crystalGenerationRate = 0.3;
+
+    // Сброс начального количества ключей для продолжения
+    requiredKeys = 2;
+
+    updateScore(); // Обновляем счет
+    platforms = [
+        { x: 150, y: canvas.height - 50, width: 100, height: 20, hasCrystal: false },
+        { x: 300, y: canvas.height - 150, width: 100, height: 20, hasCrystal: false },
+        { x: 500, y: canvas.height - 250, width: 100, height: 20, hasCrystal: false },
+        { x: 250, y: canvas.height - 350, width: 100, height: 20, hasCrystal: false },
+        { x: 400, y: canvas.height - 450, width: 100, height: 20, hasCrystal: false },
+        { x: 200, y: canvas.height - 550, width: 100, height: 20, hasCrystal: false },
+        { x: 350, y: canvas.height - 650, width: 100, height: 20, hasCrystal: false },
+        { x: 450, y: canvas.height - 750, width: 100, height: 20, hasCrystal: false }
+    ];
+    crystals = [];
+    crystalScore = 0;
+    platformCount = 0;
+    gameOverModal.style.display = 'none'; // Скрываем модальное окно
+    updateScore(); // Обновляем счет
+});
+
+window.addEventListener('load', () => {
+     const selectedSkin = localStorage.getItem('selectedSkin');
+
+     if (selectedSkin === 'halloween') {
+         player.color = 'transparent';
+         const skinImage = new Image();
+         skinImage.src = '1.jpg';  // Изображение для скина Halloween
+         skinImage.onload = function() {
+             player.skin = skinImage;
+         };
+     } else if (selectedSkin === 'bat') {
+         player.color = 'transparent';
+         const skinImage = new Image();
+         skinImage.src = 'e.png';  // Изображение для скина летучая мышь
+         skinImage.onload = function() {
+             player.skin = skinImage;
+         };
+     } else if (selectedSkin === 'white_square') { // Добавить "Белый квадрат"
+         player.color = 'transparent';
+         const skinImage = new Image();
+         skinImage.src = 'w.jpg';  // Изображение для белого квадрата
+         skinImage.onload = function() {
+             player.skin = skinImage;
+         };
+        } else if (selectedSkin === 'yellow') { // Добавить "Белый квадрат"
+         player.color = 'transparent';
+         const skinImage = new Image();
+         skinImage.src = 'yl.png';  // Изображение для белого квадрата
+         skinImage.onload = function() {
+             player.skin = skinImage;
+         };
+        } else if (selectedSkin === 'red') { // Добавить "Белый квадрат"
+         player.color = 'transparent';
+         const skinImage = new Image();
+         skinImage.src = 'red.png';  // Изображение для белого квадрата
+         skinImage.onload = function() {
+             player.skin = skinImage;
+         };
+        } else if (selectedSkin === 'green_square') { // Добавить "Белый квадрат"
+         player.color = 'transparent';
+         const skinImage = new Image();
+         skinImage.src = 'green.jpg';  // Изображение для белого квадрата
+         skinImage.onload = function() {
+             player.skin = skinImage;
+         };
+        } else if (selectedSkin === 'pink_square') { // Добавить "Белый квадрат"
+         player.color = 'transparent';
+         const skinImage = new Image();
+         skinImage.src = 'rrr.jpg';  // Изображение для белого квадрата
+         skinImage.onload = function() {
+             player.skin = skinImage;
+         };
+        } else if (selectedSkin === 'orange_square') { // Добавить "Белый квадрат"
+         player.color = 'transparent';
+         const skinImage = new Image();
+         skinImage.src = 'o.png';  // Изображение для белого квадрата
+         skinImage.onload = function() {
+             player.skin = skinImage;
+         };
+        } else if (selectedSkin === 'snowman') { // Добавить "Белый квадрат"
+         player.color = 'transparent';
+         const skinImage = new Image();
+         skinImage.src = 'snow.png';  // Изображение для белого квадрата
+         skinImage.onload = function() {
+             player.skin = skinImage;
+         };
+        } else if (selectedSkin === 'santa') { // Добавить "Белый квадрат"
+         player.color = 'transparent';
+         const skinImage = new Image();
+         skinImage.src = 'dedd.png';  // Изображение для белого квадрата
+         skinImage.onload = function() {
+             player.skin = skinImage;
+         };
+        } else if (selectedSkin === 'purple_square') { // Добавить "Белый квадрат"
+         player.color = 'transparent';
+         const skinImage = new Image();
+         skinImage.src = 'fff.png';  // Изображение для белого квадрата
+         skinImage.onload = function() {
+             player.skin = skinImage;
+         };
+        } else if (selectedSkin === 'basketball') { // Добавить "Белый квадрат"
+         player.color = 'transparent';
+         const skinImage = new Image();
+         skinImage.src = 'bbb.png';  // Изображение для белого квадрата
+         skinImage.onload = function() {
+             player.skin = skinImage;
+         };
+
+        } else if (selectedSkin === 'football') { // Добавить "Белый квадрат"
+         player.color = 'transparent';
+         const skinImage = new Image();
+         skinImage.src = 'football.png';  // Изображение для белого квадрата
+         skinImage.onload = function() {
+             player.skin = skinImage;
+         };
+
+        } else if (selectedSkin === 'boi') { // Добавить "Белый квадрат"
+         player.color = 'transparent';
+         const skinImage = new Image();
+         skinImage.src = 'pum.png';  // Изображение для белого квадрата
+         skinImage.onload = function() {
+             player.skin = skinImage;
+         };
+
+        } else if (selectedSkin === 'cat') { // Добавить "Белый квадрат"
+         player.color = 'transparent';
+         const skinImage = new Image();
+         skinImage.src = 'cat.png';  // Изображение для белого квадрата
+         skinImage.onload = function() {
+             player.skin = skinImage;
+         };
+
+        } else if (selectedSkin === 'mem') { // Добавить "Белый квадрат"
+         player.color = 'transparent';
+         const skinImage = new Image();
+         skinImage.src = 'mem.avif';  // Изображение для белого квадрата
+         skinImage.onload = function() {
+             player.skin = skinImage;
+         };
+
+        } else if (selectedSkin === 'rocket') { // Добавить "Белый квадрат"
+         player.color = 'transparent';
+         const skinImage = new Image();
+         skinImage.src = 'rocket.gif';  // Изображение для белого квадрата
+         skinImage.onload = function() {
+             player.skin = skinImage;
+         };
+
+        } else if (selectedSkin === 'luko') { // Добавить "Белый квадрат"
+         player.color = 'transparent';
+         const skinImage = new Image();
+         skinImage.src = 'opaa.png';  // Изображение для белого квадрата
+         skinImage.onload = function() {
+             player.skin = skinImage;
+         };
+
+        } else if (selectedSkin === 'emm') { // Добавить "Белый квадрат"
+         player.color = 'transparent';
+         const skinImage = new Image();
+         skinImage.src = 'smm.png';  // Изображение для белого квадрата
+         skinImage.onload = function() {
+             player.skin = skinImage;
+         };
+
+        } else if (selectedSkin === 'yo') { // Добавить "Белый квадрат"
+         player.color = 'transparent';
+         const skinImage = new Image();
+         skinImage.src = 'ping.png';  // Изображение для белого квадрата
+         skinImage.onload = function() {
+             player.skin = skinImage;
+         };
+
+
+
+
+
+     } else {
+         player.color = '#00f';  // Синий цвет по умолчанию
+     }
+ });
+
+  // Начальное значение стоимости продолжения
+let continueCost = 2;
+
+document.getElementById('continueButton').addEventListener('click', () => {
+    let keysCount = parseInt(localStorage.getItem('totalKeys') || '0');
+
+    // Проверяем, достаточно ли ключей для продолжения
+    if (keysCount >= continueCost) {
+        // Уменьшаем количество ключей и обновляем localStorage
+        keysCount -= continueCost;
+        localStorage.setItem('totalKeys', keysCount);
+
+        // Прячем модальное окно и продолжаем игру
+        document.getElementById('gameOverModal').style.display = 'none';
+        gameOver = false;
+
+        // Сохраняем платформу, с которой игрок продолжит игру
+        if (lastPlatform) {
+            player.x = lastPlatform.x + lastPlatform.width / 2 - player.width / 2; // Центрируем игрока на платформе
+            player.y = lastPlatform.y - player.height;
+        } else {
+            player.y = canvas.height - 60;
+        }
+        
+        player.speedY = 0; // Останавливаем вертикальное движение
+
+        // Увеличиваем стоимость следующего продолжения на 2 ключа
+        continueCost += 2;
+
+        // Обновляем только число ключей, не трогая иконку
+        document.getElementById('keyCount').textContent = continueCost;
+    } else {
+        // Если недостаточно ключей, перенаправляем игрока в магазин
+        window.location.href = 'shop.html';
+    }
+});
+
+// Обработчик для кнопки "Начать заново"
+document.getElementById('restartButton').addEventListener('click', () => {
+    // Сбрасываем все значения игры
+    gameOver = false;
+    player.x = canvas.width / 2 - 25;
+    player.y = canvas.height - 60;
+    player.speedX = 0;
+    player.speedY = 0;
+
+    crystals = [];
+    crystalScore = 0;
+    platformCount = 0;
+    level = 1;
+    platformColor = '#808080';
+    crystalGenerationRate = 0.3;
+
+    // Сбрасываем стоимость продолжения до начального значения
+    continueCost = 2;
+    document.getElementById('keyCount').textContent = continueCost;
+
+    document.body.classList.remove('new-background');
+    updateScore();
+
+    // Переинициализация платформ
+    platforms = [
+        { x: 150, y: canvas.height - 50, width: 100, height: 20, hasCrystal: false },
+        { x: 300, y: canvas.height - 150, width: 100, height: 20, hasCrystal: false },
+        { x: 500, y: canvas.height - 250, width: 100, height: 20, hasCrystal: false },
+        { x: 250, y: canvas.height - 350, width: 100, height: 20, hasCrystal: false },
+        { x: 400, y: canvas.height - 450, width: 100, height: 20, hasCrystal: false },
+        { x: 200, y: canvas.height - 550, width: 100, height: 20, hasCrystal: false },
+        { x: 350, y: canvas.height - 650, width: 100, height: 20, hasCrystal: false },
+        { x: 450, y: canvas.height - 750, width: 100, height: 20, hasCrystal: false }
+    ];
+
+    crystals = [];
+    platformCount = 0;
+    document.getElementById('gameOverModal').style.display = 'none';
+    updateScore();
+});
+
+
+function useKeys(count) {
+    if (keysCount >= count) {
+        keysCount -= count;
+        localStorage.setItem('totalKeys', keysCount); // Сохранение оставшихся ключей
+        return true; // Возвращаем true, если ключи успешно использованы
+    }
+    return false; // Если ключей недостаточно
+}
+
+
+function updatePlayer() {
+    if (gameOver) return;
+
+    // Управление движением
+    if (keys.left) player.speedX = -5;
+    if (keys.right) player.speedX = 5;
+    if (!keys.left && !keys.right) player.speedX = 0;
+
+    // Проверка прыжка и запуск флипа
+    if (keys.jump && player.onGround) {
+        player.speedY = jumpForce;
+        player.onGround = false;
+        flipAngle = 0;            // Сбрасываем угол флипа
+        flipDirection = 1;        // Устанавливаем направление
+    }
+
+    // Гравитация и обновление позиций
+    player.speedY += gravity;
+    player.x += player.speedX;
+    player.y += player.speedY;
+
+    // Логика поворота, пока игрок в воздухе
+    if (!player.onGround) {
+        flipAngle += flipDirection * 10; // Увеличиваем угол флипа
+        if (Math.abs(flipAngle) >= 90) flipDirection *= -1; // Меняем направление
+    } else {
+        flipAngle = 0; // Сбрасываем угол, если игрок на платформе
+    }
+
+    // Ограничение по краям экрана
+    if (player.x < 0) player.x = 0;
+    if (player.x + player.width > canvas.width) {
+        player.x = canvas.width - player.width;
+    }
+
+    // Если игрок достигает нижней части экрана
+    if (player.y + player.height > canvas.height) {
+        if (platformCount > 0) {
+            gameOver = true;
+            document.getElementById('gameOverModal').style.display = 'flex';
+            document.getElementById('finalScore').textContent = crystalScore;
+        }
+        player.y = canvas.height - player.height;
+        player.speedY = 0;
+        player.onGround = true;
+    }
+
+    // Проверка столкновений с платформами
+    platforms.forEach((platform, index) => {
+    if (
+        player.x < platform.x + platform.width &&
+        player.x + player.width > platform.x &&
+        player.y + player.height <= platform.y + platform.height &&
+        player.y + player.height > platform.y
+    ) {
+        player.speedY = 0;
+        player.y = platform.y - player.height;
+        player.onGround = true;
+
+        // Сохраняем текущую платформу как последнюю перед падением
+        lastPlatform = platform;
+
+        // Вибрация при приземлении на платформу (для мобильных устройств)
+        if (navigator.vibrate) {
+            navigator.vibrate(100);
+        }
+    }
+
+
+        // Удаляем платформы, ушедшие за экран
+        if (platform.y > canvas.height) {
+    platforms.splice(index, 1);
+    platformCount++;
+
+    createPlatform(); // Создаем новую платформу после удаления старой
+
+
+            // Меняем фон и цвет платформ при достижении цели
+            if (platformCount === platformGoal) {
+                document.body.classList.add('new-background');
+                platformColor = '#8B0000';
+            }
+        }
+    });
+
+    // Проверка сбора кристаллов
+    crystals.forEach((crystal, index) => {
+        if (
+            !crystal.collected &&
+            player.x < crystal.x + crystal.width &&
+            player.x + player.width > crystal.x &&
+            player.y < crystal.y + crystal.height &&
+            player.y + player.height > crystal.y
+        ) {
+            crystal.collected = true;
+            crystalScore++;
+
+            localStorage.setItem('lastRoundCrystals_game1', crystalScore);
+
+            let lastRoundCrystals = parseInt(localStorage.getItem('lastRoundCrystals') || '0');
+    lastRoundCrystals += 1;
+    localStorage.setItem('lastRoundCrystals', lastRoundCrystals);
+
+    // Обновляем общий счет кристаллов
+    let totalCrystals = parseInt(localStorage.getItem('totalCrystals') || '0');
+    totalCrystals += 1;
+    localStorage.setItem('totalCrystals', totalCrystals);
+
+
+            updateScore();
+        }
+    });
+
+    // Скроллинг платформ и генерация новых, если игрок выше середины экрана
+    if (player.y < canvas.height / 2) {
+        platforms.forEach(platform => platform.y += 7);
+        crystals.forEach(crystal => crystal.y += 7);
+        player.y += 7;
+
+        // Вероятность создания новых платформ и кристаллов
+        if (Math.random() < 0.2) createPlatform(); // Увеличьте вероятность с 0.1 до 0.2
+        if (Math.random() < crystalGenerationRate) createCrystal();
+    }
+
+    // Увеличение уровня сложности
+    if (platformCount >= 15 * level) {
+        level++;
+        platformCount = 0;
+        crystalGenerationRate = Math.max(0.1, crystalGenerationRate - 0.05);
+    }
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Сохраняем состояние контекста перед трансформацией
+    ctx.save();
+
+    // Перемещаем точку поворота к центру игрока
+    ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
+
+    // Поворачиваем персонажа на текущий угол flipAngle
+    ctx.rotate((flipAngle * Math.PI) / 180);
+
+    // Смещаем координаты обратно и рисуем изображение скина
+    if (player.skin) {
+        ctx.drawImage(player.skin, -player.width / 2, -player.height / 2, player.width, player.height);
+    } else {
+        // Если скина нет, рисуем квадратик (как стандартный игрок)
+        ctx.fillStyle = player.color;
+        ctx.fillRect(-player.width / 2, -player.height / 2, player.width, player.height);
+    }
+
+    // Восстанавливаем контекст после трансформации
+    ctx.restore();
+
+    // Отрисовываем платформы и кристаллы
+    platforms.forEach(platform => {
+        ctx.fillStyle = platformColor;
+        ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+    });
+
+    crystals.forEach(crystal => {
+        if (!crystal.collected) {
+            ctx.drawImage(crystalImage, crystal.x, crystal.y, crystal.width, crystal.height);
+        }
+    });
+}
+
+
+        function gameLoop() {
+            updatePlayer();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+
+</body>
+</html>

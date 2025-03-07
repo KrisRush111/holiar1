@@ -1,0 +1,130 @@
+<!DOCTYPE html> 
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1, minimum-scale=1">
+    <title>Загрузка...</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background-image: url('app.jpg'); /* Фон из Brawl Stars */
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; /* Перемещаем прогресс-бар вниз */
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Вступительная анимация */
+        #intro {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 10;
+            animation: fadeOut 1s forwards; /* Анимация исчезновения черного экрана */
+        }
+
+        /* Анимация исчезновения */
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                display: none;
+            }
+        }
+
+        .loading-text {
+            font-size: 28px;
+            color: white;
+            margin-bottom: 10px; /* Уменьшили отступ, чтобы сэкономить место */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Прогресс бар */
+        .progress-container {
+            width: 60%; /* Сделали короче */
+            max-width: 400px; /* Уменьшили максимальную ширину */
+            height: 30px; /* Сделали ниже */
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            margin-bottom: 20px; /* Отступ снизу для прогресса */
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, #71bad5, #71bad5);
+            transition: width 0.3s ease-in-out;
+        }
+
+        /* Стиль процента */
+        .progress-percentage {
+            position: absolute;
+            bottom: 25px; /* Переместили над прогресс-баром */
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 22px;
+            color: white;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+        }
+        @media (max-width: 768px) {
+    body {
+        background-position: top; /* Перемещаем фон вверх на маленьких экранах */
+    }
+}
+
+@media (orientation: landscape) {
+    body {
+        background-size: contain; /* Устанавливаем изображение по размеру экрана в ландшафтном режиме */
+    }
+}
+
+    </style>
+</head>
+<body>
+
+    <!-- Вступление -->
+    <div id="intro"></div>
+
+    <div class="loading-text">Загрузка...</div>
+    
+    <!-- Контейнер для прогресс бара -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    
+    <!-- Процент загрузки -->
+    <div class="progress-percentage" id="progress-percentage">0%</div>
+
+    <script>
+        let progress = 0;
+        const progressBar = document.getElementById('progress-bar');
+        const progressPercentage = document.getElementById('progress-percentage');
+        
+        function updateProgress() {
+            if (progress < 100) {
+                progress += 1;
+                progressBar.style.width = progress + '%';
+                progressPercentage.textContent = progress + '%';
+            } else {
+                clearInterval(progressInterval);
+                window.location.href = "menu.html"; // Переход на страницу меню
+            }
+        }
+        
+        const progressInterval = setInterval(updateProgress, 50); // Скорость загрузки
+    </script>
+
+</body>
+</html>
